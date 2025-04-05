@@ -2,6 +2,7 @@ import './App.css';
 import { useState, useEffect } from 'react';
 import Axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import Swal from 'sweetalert2'
 
 
 
@@ -28,6 +29,7 @@ function App() {
     }).then(()=>{
       alert("Empleado registrado")
       getEmpleados();
+      limpiarCampos()
 
     });
   }
@@ -46,12 +48,43 @@ function App() {
     });
   }
 
+  const eliminar = (val) =>{
+    Swal.fire({
+      title: `Desea borrar a ${val.nombre}`,
+      icon:"warning",
+      confirmButtonColor:'#3085d6',
+      cancelButtonColor:'#d33',
+      confirmButtonText:'Eliminar',
+      cancelButtonText:'Cancelar',
+      showCancelButton: true,
+    }).then((result) => {
+      /* Read more about isConfirmed, isDenied below */
+      if (result.isConfirmed) {
+        Axios.delete(`http://localhost:3001/delete/${val.id}`).then(()=>{
+    
+          getEmpleados();
+    
+        });  
+      } else if (result.isDenied) {
+
+      }
+    });
+   
+  }
+
+  const cancelar = () =>{
+    limpiarCampos()
+    setEditar(false)
+
+  }
+
   const limpiarCampos = () =>{
     setNombre("");
     setEdad(0);
     setPais("");
     setCargo("");
     setAnios(0);
+    setId(0);
 
   }
 
@@ -146,7 +179,7 @@ function App() {
                 <button className='btn btn-warning me-2' onClick={ update }>
                 Actualizar
                 </button>
-                <button className='btn btn-info' onClick={ limpiarCampos }>
+                <button className='btn btn-info' onClick={ cancelar }>
                 Cancelar
                 </button>
                 </div>
@@ -193,7 +226,10 @@ function App() {
                                 editarEmpleado(val)
                               }}
                               className="btn btn-info">Editar</button>
-                              <button type="button" className="btn btn-danger">Eliminar</button>
+                              <button type="button" 
+                              onClick={()=>{
+                                eliminar(val)
+                              }} className="btn btn-danger">Eliminar</button>
                             </div>
                             
                             </td>
